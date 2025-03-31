@@ -5,24 +5,27 @@ on:
   pull_request:
 
 env:
-  MIRROR_URL: git@github.com:EpitechPGEPromo2029/B-DOP-200-STG-2-1-chocolatine-mathilde.lorentz.git
+  MIRROR_URL: git@github.com:EpitechMirror/repo.git
   EXECUTABLES: mysh,bin/exec1,lib/my_hunter
 
 jobs:
   skip_check:
-    if: |
-      startsWith(github.ref_name, 'ga-ignore-') ||
-      github.repository == env.MIRROR_URL
     runs-on: ubuntu-latest
-    steps:
-      - name: Skip job
-        run: echo "Skipping workflow because branch starts with ga-ignore- or is run on the mirror repo."
     outputs:
-      skipped: true
+      skipped: ${{ steps.check_skip.outputs.skipped }}
+    steps:
+      - name: Check if workflow should be skipped
+        id: check_skip
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == ga-ignore-* ]] || [[ "${GITHUB_REPOSITORY}" == "$(basename $MIRROR_URL .git)" ]]; then
+            echo "skipped=true" >> $GITHUB_OUTPUT
+          else
+            echo "skipped=false" >> $GITHUB_OUTPUT
+          fi
 
   check_coding_style:
     needs: skip_check
-    if: needs.skip_check.outputs.skipped != true
+    if: needs.skip_check.outputs.skipped != 'true'
     runs-on : ubuntu-latest
     container:
       image: ghcr.io/epitech/coding-style-checker:latest
