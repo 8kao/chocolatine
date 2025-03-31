@@ -5,7 +5,7 @@ on:
   pull_request:
 
 env:
-  MIRROR_URL: git@github.com:EpitechMirror/repo.git
+  MIRROR_URL: git@github.com:EpitechPGEPromo2029/B-DOP-200-STG-2-1-chocolatine-mathilde.lorentz.git
   EXECUTABLES: mysh,bin/exec1,lib/my_hunter
 
 jobs:
