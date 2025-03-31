@@ -1,0 +1,112 @@
+name: Chocolatine
+
+on:
+  push:
+  pull_request:
+
+env:
+  MIRROR_URL: git@github.com:EpitechPGEPromo2029/B-DOP-200-STG-2-1-chocolatine-mathilde.lorentz.git
+  EXECUTABLES: mysh,bin/exec1,lib/my_hunter
+
+jobs:
+  skip_check:
+    if: |
+      startsWith(github.ref_name, 'ga-ignore-') ||
+      github.repository == env.MIRROR_URL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip job
+        run: echo "Skipping workflow because branch starts with ga-ignore- or is run on the mirror repo."
+    outputs:
+      skipped: true
+
+  check_coding_style:
+    needs: skip_check
+    if: needs.skip_check.outputs.skipped != true
+    runs-on : ubuntu-latest
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: Run coding style checker
+        run: check.sh $(pwd) $(pwd)
+
+      - name: Annotate coding style errors
+        run: |
+          if [ -f coding-style-reports.log ]; then
+            while IFS=: read -r file line type msg; do
+              echo "::error file=$file,line=$line::$type - $msg"
+              exit 1
+            done < coding-style-reports.log
+          fi
+
+  check_program_compilation:
+    needs: check_coding_style
+    if: success()
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Compile project (timeout 2min)
+        run: make
+        timeout-minutes: 2
+
+      - name: Run make clean
+        run: make clean
+
+      - name: Check executables exist
+        run: |
+          IFS=',' read -ra execs <<< "${EXECUTABLES}"
+          for exe in "${execs[@]}"; do
+            if [ ! -x "$exe" ]; then
+              echo "::error file=$exe::Executable '$exe' is missing or not executable"
+              exit 1
+            fi
+          done
+
+  run_tests:
+    needs: check_program_compilation
+    if: success()
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run unit tests (timeout 2min)
+        run: make tests_run
+        timeout-minutes: 2
+
+  push_to_mirror:
+    needs: run_tests
+    if: github.event_name == 'push' && success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Push to mirror
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ env.MIRROR_URL }}
