@@ -5,7 +5,7 @@
 ** ok
 */
 
-#include "../../include/my.h"
+#include "../../include/palindrome.h"
 
 void my_putchar(char c)
 {

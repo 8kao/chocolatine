@@ -5,7 +5,7 @@
 ** ok
 */
 
-#include "../../include/my.h"
+#include "../../include/palindrome.h"
 
 int my_putstr(char const *str)
 {
@@ -15,11 +15,5 @@ int my_putstr(char const *str)
         my_putchar(str[i]);
         i++;
     }
-    return 0;
-}
-
-int my_putstr_error(char const *str)
-{
-    write(2, str, my_strlen(str));
     return 0;
 }

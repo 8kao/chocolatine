@@ -5,7 +5,7 @@
 ** ok
 */
 
-#include "../../include/my.h"
+#include "../../include/palindrome.h"
 
 int my_strlen(char const *str)
 {

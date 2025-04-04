@@ -2,11 +2,10 @@
 ## EPITECH PROJECT, 2024
 ## Makefile
 ## File description:
-## minishell1 makefile
+## makefile
 ##
 
-
-NAME	= mysh
+NAME	= palindrome
 
 CC	= gcc
 
@@ -14,13 +13,7 @@ CFLAGS = -g
 
 RM	= rm -f
 
-SRCS	=	src/mini_shell1.c	\
-			src/cd_command.c 	\
-			src/execute_command.c 		\
-			src/env_commands.c 			\
-			src/bin_commands.c	\
-			src/my_getenv.c 	\
-			src/my_getenv_int.c 	\
+SRCS	=	palindrome.c		\
 
 OBJS	= $(SRCS:.c=.o)
 
