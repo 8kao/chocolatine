@@ -68,8 +68,7 @@ jobs:
 
       - name: Check executables exist
         run: |
-          IFS=',' read -ra execs <<< "${EXECUTABLES}"
-          for exe in "${execs[@]}"; do
+          for exe in $(echo "${EXECUTABLES}" | tr ',' ' '); do
             if [ ! -x "$exe" ]; then
               echo "::error file=$exe::Executable '$exe' is missing or not executable"
               exit 1
