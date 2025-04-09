@@ -7,7 +7,7 @@
 
 #include "include/palindrome.h"
 
-int palindrome   (char *str)
+int palindrome(char *str)
 {
     char *backwstr = str;
     int len = my_strlen(str) - 1;
@@ -21,14 +21,12 @@ int palindrome   (char *str)
     return 0;
 }
 
-int main (int ac, char ** argv)
+int main(int ac, char **argv)
 {
     if (ac < 2 || ac > 2) {
         write(2, "Error: missing arguments.\n", 26);
         return 84;
     }
-
-
     if (palindrome(argv[1]) == 0) {
         write(1, "palindrome!\n", 12);
         return 0;
@@ -36,6 +34,4 @@ int main (int ac, char ** argv)
         write(1, "not a palindrome.\n", 18);
         return 0;
     }
-
 }
-
